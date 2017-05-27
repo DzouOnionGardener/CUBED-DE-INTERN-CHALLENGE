@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import unicodedata
+from StoreToDB import *
 import csv
 
 #url http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn=1&_skc=0
@@ -22,12 +23,12 @@ class Scraper(object):
         self.baseURL = "http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn="
         self.pageIndex = 1         ##starting page
         self.itemsShowing = 0      ##number items per page
-
+        self.db = dataBase()
         ##item data containers
         ##using csv temporarily, I'll move to push the data to the mySQL server later on
         with open('results.csv', 'w') as csvfile:
             self.writer = csv.writer(csvfile)
-            self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings", "watching"])
+            self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings","units_sold", "watching"])
 
 
     def scrape(self):
@@ -64,18 +65,16 @@ class Scraper(object):
         try:
             ItemRequest = requests.get(self.InnerURL)
             soup = BeautifulSoup(ItemRequest.content, "lxml")
-            ##unicode.normalize is used to take care of the encoding nonsense in the parsed data
             self.itemName = [unicodedata.normalize('NFKD', a.contents[1]).encode('ASCII', 'ignore') for a in soup.find_all("h1", {"id": "itemTitle"})]
+            self.itemName = [e.replace(",", "").replace(".", "").replace("-", "").replace("/", "").replace("\\", "").replace("_", "").replace("'", "") for e in self.itemName]
             self.price = [unicodedata.normalize('NFKD', a.span.contents[0].strip('US $')).encode('ASCII', 'ignore') for a in soup.find_all("div", {"id": "vi-mskumap-none"})]
-            ## normalize the price further so that it can be converted to a float
             self.price = [e.replace(',', "") for e in self.price]
             self.price = map(float, self.price)
             self.brand = [unicodedata.normalize('NFKD', a.span.contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("h2", {"itemprop": "brand"})]
             self.sellerScore = [unicodedata.normalize('NFKD', a.contents[1].contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class": "mbg-l"})]
-            del self.sellerScore[1:] ## some sellerScores had 2 values
+            del self.sellerScore[1:]
             self.unitsSold = [unicodedata.normalize('NFKD', a.contents[1].contents[0].strip(' sold')).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class": "vi-qtyS"})]
             self.unitsSold = map(int, self.unitsSold)
-            ##allow unitsSold to be blank instead of 0
             try:
                 self.watching = [unicodedata.normalize('NFKD', a.contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class":"vi-buybox-watchcount"})]
                 if not self.watching:
@@ -87,8 +86,6 @@ class Scraper(object):
                 self.savings = [unicodedata.normalize('NFKD', a.contents[0].strip('\n \t')).encode('ASCII', 'ignore') for a in soup.find_all("span", {"id": "youSaveSTP"})]
                 ## % savings format on the page: $ n  ( x% off)
                 ## strip out everything except the % off, we can maybe look into finding the words inbetween ( and )
-                ## i can look for the index of ( and the index of )
-                ## and then take the characters inbetween the indexes and then strip '% off'
                 for index, e in enumerate(self.savings):
                     startingIndex = e.index('(')+1
                     endingIndex = e.index(')')
@@ -102,7 +99,8 @@ class Scraper(object):
         except:
             pass
 
+    def MoveToDB(self, listW):
+        self.db.ImportToDatabase()
 if __name__ == "__main__":
     s = Scraper()
     s.scrape()
-    ##results = map(int, results) ##converts list of strings to int
