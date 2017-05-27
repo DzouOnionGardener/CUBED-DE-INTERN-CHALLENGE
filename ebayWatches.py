@@ -99,8 +99,9 @@ class Scraper(object):
         except:
             pass
 
-    def MoveToDB(self, listW):
+    def MoveToDB(self):
         self.db.ImportToDatabase()
 if __name__ == "__main__":
     s = Scraper()
     s.scrape()
+    s.MoveToDB()

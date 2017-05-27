@@ -20,17 +20,19 @@ class dataBase(object):
         else:
             pass
 
-    def ImportToDatabase(self, listW):
+    def ImportToDatabase(self):
         DB = MySQLdb.connect("localhost", self.db_username, self.db_password, "eBay")
         cursor = DB.cursor()
         #query= "INSERT INTO eBay.watches(item_name, brand, price, seller_score, savings_percent, watching) VALUES(%s, %s, %s, %s, %s, %s, %s)"
-        for rows in self.datafile:
-            try:
-                cursor.execute("INSERT INTO eBay.watches(item_name, brand, price, seller_score, savings_percent, units_sold, watching) VALUES(%s, %s, %s, %s, %s, %s, %s)", rows)
-
-            except:
-                pass
-        DB.commit()
+        try:
+            for rows in self.datafile:
+                try:
+                    cursor.execute("INSERT INTO eBay.watches(item_name, brand, price, seller_score, savings_percent, units_sold, watching) VALUES(%s, %s, %s, %s, %s, %s, %s)", rows)
+                    DB.commit()
+                except:
+                    pass
+        except:
+            pass
 
 if __name__ == "__main__":
     db = dataBase()
