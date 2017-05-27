@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
-import MySQLdb
 import unicodedata
 import csv
+
+#url http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn=1&_skc=0
+
 """
 item url:      <div class="lvpicinner ... picW">  <a href=" (item_url) " >
 item name:     <h3 class="lvtitle"> <a href=" "> (item_name) </a>             #nested inside an anchor
@@ -15,7 +17,6 @@ units sold?:   <span class="vi-qtyS">  <a href=""> # sold </a> </span>        ##
 savings prcnt: <span id="youSaveSTP"> (##%&nbps;off) </span>
 brand:         <span itempop="name"> (brand name) </span>
 """
-#url http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn=1&_skc=0
 class Scraper(object):
     def __init__(self):
         self.baseURL = "http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn="
@@ -23,7 +24,7 @@ class Scraper(object):
         self.itemsShowing = 0      ##number items per page
 
         ##item data containers
-
+        ##using csv temporarily, I'll move to push the data to the mySQL server later on
         with open('results.csv', 'w') as csvfile:
             self.writer = csv.writer(csvfile)
             self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings", "watching"])
@@ -31,25 +32,22 @@ class Scraper(object):
 
     def scrape(self):
         #number of items
+        ##currently set low for debugging
         n_items = 20                                    ##we want x entries
         while(self.itemsShowing < n_items):             ##while less than n_entries
             url = self.baseURL + str(self.pageIndex) + "&_skc=" + str(self.itemsShowing)  ##increment itemsshowing by x
-            ##GET call on url
             req = requests.get(url)
-            ##get contents
             soup = BeautifulSoup(req.content, "lxml")
             print "executed request"
             ##
             try:
-                #self.itemName = [a.contents[0] for a in (hname.find('a') for hname in soup.find_all("h3", {"class":"lvtitle"})) if a]
-                #print self.itemName
-               # self.itemName = [unicodedata.normalize('NFKD', x).encode('ASCII', 'ignore') for x in self.itemName]
-                #print self.itemName
                 self.itemURL = [a for a in soup.find_all("h3", {"class":"lvtitle"})]
                 for a in self.itemURL:
+                    ##get the data from the contents of each item url
                     self.InnerURL = a.find('a')['href']
+                    ##call the fcuntion/method that handles all of the internal data of each item
                     self.itemData()
-                    self.items = [d for d in zip(self.itemName, self.brand, self.price, self.sellerScore, self.savings,self.watching)]
+                    self.items = [d for d in zip(self.itemName, self.brand, self.price, self.sellerScore, self.savings,self.unitsSold, self.watching)]
                     with open('results.csv', 'a') as d:
                         self.writer = csv.writer(d)
                         try:
@@ -66,23 +64,31 @@ class Scraper(object):
         try:
             ItemRequest = requests.get(self.InnerURL)
             soup = BeautifulSoup(ItemRequest.content, "lxml")
+            ##unicode.normalize is used to take care of the encoding nonsense in the parsed data
             self.itemName = [unicodedata.normalize('NFKD', a.contents[1]).encode('ASCII', 'ignore') for a in soup.find_all("h1", {"id": "itemTitle"})]
             self.price = [unicodedata.normalize('NFKD', a.span.contents[0].strip('US $')).encode('ASCII', 'ignore') for a in soup.find_all("div", {"id": "vi-mskumap-none"})]
+            ## normalize the price further so that it can be converted to a float
+            self.price = [e.replace(',', "") for e in self.price]
+            self.price = map(float, self.price)
             self.brand = [unicodedata.normalize('NFKD', a.span.contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("h2", {"itemprop": "brand"})]
             self.sellerScore = [unicodedata.normalize('NFKD', a.contents[1].contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class": "mbg-l"})]
-            ##score needs to be fixed, sometimes the list shows 2 scores
+            del self.sellerScore[1:] ## some sellerScores had 2 values
+            self.unitsSold = [unicodedata.normalize('NFKD', a.contents[1].contents[0].strip(' sold')).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class": "vi-qtyS"})]
+            self.unitsSold = map(int, self.unitsSold)
+            ##allow unitsSold to be blank instead of 0
             try:
                 self.watching = [unicodedata.normalize('NFKD', a.contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class":"vi-buybox-watchcount"})]
                 if not self.watching:
                     self.watching.append(0)
             except:
                 self.watching.append(0)
+            self.watching = map(int,self.watching)
             try:
                 self.savings = [unicodedata.normalize('NFKD', a.contents[0].strip('\n \t')).encode('ASCII', 'ignore') for a in soup.find_all("span", {"id": "youSaveSTP"})]
-                ## savings format on the page: $ n  ( x% off)
-                ##strip out everything except the % off, we can maybe look into finding the words inbetween ( and )
-                ##i can look for the index of ( and the index of )
-                ##and then take the characters inbetween the indexes and then strip % off
+                ## % savings format on the page: $ n  ( x% off)
+                ## strip out everything except the % off, we can maybe look into finding the words inbetween ( and )
+                ## i can look for the index of ( and the index of )
+                ## and then take the characters inbetween the indexes and then strip '% off'
                 for index, e in enumerate(self.savings):
                     startingIndex = e.index('(')+1
                     endingIndex = e.index(')')
@@ -92,10 +98,10 @@ class Scraper(object):
                     self.savings.append(0)
             except:
                 self.savings.append(0)
+            self.savings = map(int, self.savings)
         except:
             pass
-        #self.sellerScore = map(int, self.sellerScore)
-        #self.watching = map(int, self.watching)
+
 if __name__ == "__main__":
     s = Scraper()
     s.scrape()
