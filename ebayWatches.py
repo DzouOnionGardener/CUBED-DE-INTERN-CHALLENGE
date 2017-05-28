@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import unicodedata
 from StoreToDB import *
 import csv
+import time
 
 #url http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn=1&_skc=0
 
@@ -34,7 +35,7 @@ class Scraper(object):
     def scrape(self):
         #number of items
         ##currently set low for debugging
-        n_items = 20                                    ##we want x entries
+        n_items = 2800                                    ##we want x entries
         while(self.itemsShowing < n_items):             ##while less than n_entries
             url = self.baseURL + str(self.pageIndex) + "&_skc=" + str(self.itemsShowing)  ##increment itemsshowing by x
             req = requests.get(url)
@@ -58,10 +59,12 @@ class Scraper(object):
                             pass
             except:
                 pass
+            self.pageIndex += 1
             self.itemsShowing += 20
         print "done"
 
     def itemData(self):
+        time.sleep(1.5)
         try:
             ItemRequest = requests.get(self.InnerURL)
             soup = BeautifulSoup(ItemRequest.content, "lxml")
