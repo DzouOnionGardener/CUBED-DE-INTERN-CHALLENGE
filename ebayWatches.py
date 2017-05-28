@@ -28,7 +28,7 @@ class Scraper(object):
         ##using csv temporarily, I'll move to push the data to the mySQL server later on
         with open('results.csv', 'w') as csvfile:
             self.writer = csv.writer(csvfile)
-            self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings","units_sold", "watching"])
+            self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings", "has_units_sold", "units_sold", "watching"])
 
 
     def scrape(self):
@@ -48,7 +48,7 @@ class Scraper(object):
                     self.InnerURL = a.find('a')['href']
                     ##call the fcuntion/method that handles all of the internal data of each item
                     self.itemData()
-                    self.items = [d for d in zip(self.itemName, self.brand, self.price, self.sellerScore, self.savings,self.unitsSold, self.watching)]
+                    self.items = [d for d in zip(self.itemName, self.brand, self.price, self.sellerScore, self.savings, self.hasUnitsSold, self.unitsSold, self.watching)]
                     with open('results.csv', 'a') as d:
                         self.writer = csv.writer(d)
                         try:
@@ -75,6 +75,11 @@ class Scraper(object):
             del self.sellerScore[1:]
             self.unitsSold = [unicodedata.normalize('NFKD', a.contents[1].contents[0].strip(' sold')).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class": "vi-qtyS"})]
             self.unitsSold = map(int, self.unitsSold)
+            self.hasUnitsSold = []
+            self.hasUnitsSold.append("TRUE")
+            if not self.unitsSold:
+                self.unitsSold.append(0)
+                self.hasUnitsSold[0] = "FALSE"
             try:
                 self.watching = [unicodedata.normalize('NFKD', a.contents[0]).encode('ASCII', 'ignore') for a in soup.find_all("span", {"class":"vi-buybox-watchcount"})]
                 if not self.watching:

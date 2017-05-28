@@ -14,7 +14,7 @@ class dataBase(object):
             DB = MySQLdb.connect("localhost", self.db_username, self.db_password, "eBay")
             cursor = DB.cursor()
             #item_name,brand,price,seller_score,savings_percent,units_sold,watching
-            cursor.execute("CREATE TABLE eBay.watches (`item_name` VARCHAR(255) NULL,`brand` VARCHAR(255) NULL,`price` FLOAT NULL,`seller_score` INT NULL,`savings_percent` INT(2) NULL,`units_sold` INT NULL,`watching` INT NULL);")
+            cursor.execute("CREATE TABLE eBay.watches (`item_name` VARCHAR(255) NULL,`brand` VARCHAR(255) NULL,`price` FLOAT NULL,`seller_score` INT NULL,`savings_percent` INT(2) NULL,`has_units_sold` VARCHAR(8) NULL,`units_sold` INT NULL,`watching` INT NULL);")
             DB.commit()
             DB.close()
         else:
@@ -27,7 +27,7 @@ class dataBase(object):
         try:
             for rows in self.datafile:
                 try:
-                    cursor.execute("INSERT INTO eBay.watches(item_name, brand, price, seller_score, savings_percent, units_sold, watching) VALUES(%s, %s, %s, %s, %s, %s, %s)", rows)
+                    cursor.execute("INSERT INTO eBay.watches(item_name, brand, price, seller_score, savings_percent, has_units_sold, units_sold, watching) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)", rows)
                     DB.commit()
                 except:
                     pass
