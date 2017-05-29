@@ -24,7 +24,7 @@ class Scraper(object):
         self.baseURL = "http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn="
         self.pageIndex = 1         ##starting page
         self.itemsShowing = 0      ##number items per page
-        self.db = dataBase()
+        self.db = dataBase("root", "lollmao1@")
         ##item data containers
         ##using csv temporarily, I'll move to push the data to the mySQL server later on
         with open('results.csv', 'w') as csvfile:

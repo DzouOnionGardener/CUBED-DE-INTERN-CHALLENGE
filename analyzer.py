@@ -13,7 +13,6 @@ class analyzer(object):
         self.username = "root"
         self.password = "lollmao1@"
         self.DB = MySQLdb.connect("localhost", self.username, self.password, "eBay")
-        self.chunksize = 8000
 
     def ScoreCorrelations(self):
         ## extract a count of user scores higher where scores <= 2000
@@ -30,8 +29,8 @@ class analyzer(object):
         x2 = int(soldData['_count_'])
         y2 = int(soldData['_total_'])
         self.Ratio = float(((x1*y2)/(y1*x2)))
-        print "There is a %.3f chance that a user with a score lower than 2000 will sell more than a user with a score higher than 2000" % self.Ratio
-
+        #print "There is a %.3f chance that a user with a score lower than 2000 will sell more than a user with a score higher than 2000" % self.Ratio
+        return self.score_to_watching, self.Ratio
 
 
     def WillingnessToPurchase(self, pricePoint=3000):

@@ -1,9 +1,9 @@
 import MySQLdb
 import csv
 class dataBase(object):
-    def __init__(self):
-        self.db_username = raw_input("mysql username: ")
-        self.db_password = raw_input("mysql password: ")
+    def __init__(self, username="root", password="lollmao1@"):
+        self.db_username = username
+        self.db_password = password
         self.createDatabase()
         self.datafile = csv.reader(file("results.csv"))
         #CREATE SCHEMA `eBay` DEFAULT CHARACTER SET latin1 COLLATE latin1_bin
