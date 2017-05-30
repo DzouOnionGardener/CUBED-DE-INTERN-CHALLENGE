@@ -20,11 +20,13 @@ savings prcnt: <span id="youSaveSTP"> (##%&nbps;off) </span>
 brand:         <span itempop="name"> (brand name) </span>
 """
 class Scraper(object):
-    def __init__(self):
+    def __init__(self, un, pw):
         self.baseURL = "http://www.ebay.com/sch/Wristwatches/31387/i.html?_udlo=1000&_fsrp=1&Gender=Men%2527s&LH_BIN=1&_pgn="
         self.pageIndex = 1         ##starting page
         self.itemsShowing = 0      ##number items per page
-        self.db = dataBase("root", "lollmao1@")
+        username = un
+        password = pw
+        self.db = dataBase(username, password)
         ##item data containers
         ##using csv temporarily, I'll move to push the data to the mySQL server later on
         with open('results.csv', 'w') as csvfile:
@@ -33,10 +35,9 @@ class Scraper(object):
 
 
     def scrape(self):
-        #number of items
-        ##currently set low for debugging
+        #arbitrary number
         n_items = 2800                                    ##we want x entries
-        while(self.itemsShowing < n_items):             ##while less than n_entries
+        while(self.itemsShowing < n_items):               ##while less than n_entries
             url = self.baseURL + str(self.pageIndex) + "&_skc=" + str(self.itemsShowing)  ##increment itemsshowing by x
             req = requests.get(url)
             soup = BeautifulSoup(req.content, "lxml")
@@ -108,7 +109,9 @@ class Scraper(object):
             pass
 
     def MoveToDB(self):
+        self.db.createDatabase()
         self.db.ImportToDatabase()
+
 if __name__ == "__main__":
     s = Scraper()
     s.scrape()

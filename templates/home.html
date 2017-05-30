@@ -14,13 +14,13 @@
     width:100%;
     min-height: 100px;
     background-color: #62738e;
-    left: -10px;
-    right: -10px;
+    left:0;
+    right:0;
     top: 0;
     position: fixed;
     box-shadow: 0 4px 2px -2px #292929;
   }
-  #main {
+  .main {
     padding: 100px 100px 0 50px;
   }
   body{
@@ -29,12 +29,42 @@
 </style>
 <body>
   <div id="navbar">
-    <a href="home.html"><img id="ebaySign" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/EBay_logo.svg/1200px-EBay_logo.svg.png" title="ebay logo"></a>
+    <a href="/"><img id="ebaySign" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/EBay_logo.svg/1200px-EBay_logo.svg.png" title="ebay logo"></a>
   </div>
-  <div id="main">
-    <h2>I did some scraping on eBay for wrist watches, they're an interest of mine and I have a small collection; A collection that I wish to improve.</h2>
-    {{ Correlation }}
-    {{ Ratio }}
+  <div class="main">
+    <h2>Built using Flask by Dawen Zou</h2>
+
+    <h3>Initially this page isnt going to have data analyzed yet, assuming you havent already imported the data.</h3>
+    <h3>to get started please login</h3>
+    <a href="{{url_for('login')}}">login</a>
+
+
+    <br>
+    <hr>
+    <h3>I did some scraping on eBay for wrist watches, they're an interest of mine and I have a small collection; A collection that I wish to improve.</h3>
+    <br>
+    <h2>Analyzed data</h2>
+    <ul>
+      <li><h3>correlation: {{ Correlation|round(4, 'floor') }}</h3></li>
+        <h4>The correlation is drawn between the sellers' score and number of people watching the listed item where the seller score is greater than or equal to 2000; which can be thought of as how much confidencea potential buyer based on the seller's score</h4>
+      <li><h3>Ratio: {{ Ratio|round(4, 'floor') }}</h3></li>
+        <h4>This is the ratio showing how many items were sold by users with scores less than or equal to 2000 as opposed to scores higher than 2000</h4>
+      <li><h3>Willingness to purchase at price points below $3,000 after savings</h3></li>
+        <ul>
+          <li>{{ below[0]|round(2, 'floor') }} with 0 to 20% discount</li>
+          <li>{{ below[1]|round(2, 'floor') }} with 20 to 40% discount</li>
+          <li>{{ below[2]|round(2, 'floor') }} with 40 to 60% discount</li>
+        </ul>
+        <h4>This shows the average units sold at price points below $3,000</h4>
+            <li><h3>Willingness to purchase at price points above $3,000 after savings</h3></li>
+        <ul>
+          <li>{{ above[0]|round(2, 'floor') }} with 0 to 20% discount</li>
+          <li>{{ above[1]|round(2, 'floor') }} with 20 to 40% discount</li>
+          <li>{{ above[2]|round(2, 'floor') }} with 40 to 60% discount</li>
+        </ul>
+        <h4>This shows the average units sold at price points above $3,000</h4>
+        <li><h3>The most common brand listed is {{ MostCommon}} with a frequency of {{listed}}</h3></li>
+    </ul>
   </div>
 </body>
 </html>

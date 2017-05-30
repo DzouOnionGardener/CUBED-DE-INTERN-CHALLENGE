@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+    #ebaySign{
+        padding: 10px 10px 0 30px;
+        width: 10%;
+        height: 10%;
+        max-height: 90px;
+      }
+    #navbar{
+        width:100%;
+        min-height: 100px;
+        background-color: #62738e;
+        left: 0;
+        right: 0;
+        top: 0;
+        position: fixed;
+        box-shadow: 0 4px 2px -2px #292929;
+      }
+      .main {
+        padding: 100px 100px 0 50px;
+        }
+      body{
+        background-color: #e8e8e8;
+      }
+    </style>
+</head>
+<body>
+  <div id="navbar">
+    <a href="/"><img id="ebaySign" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/EBay_logo.svg/1200px-EBay_logo.svg.png" title="ebay logo"></a>
+  </div>
+    <div class="main">
+        <form class="" method="POST" action="{{ url_for('getCred') }}">
+        <b>username: </b>
+        <br>
+        <input type="text" placeholder="mysql username" value="{{request.form.username}}" name="username">
+         <br>
+        <b>password: </b>
+        <br>
+        <input type="password" placeholder="mysql password" value="{{request.form.password}}" name="password">
+        <br>
+        <input class="btn" type="submit" value="Login">
+    </form>
+        <h1><span style="color:red;">Warning: this will take awhile as we render all of the data entries to your mySQL server</span></h1>
+    </div>
+</body>
+</html>
