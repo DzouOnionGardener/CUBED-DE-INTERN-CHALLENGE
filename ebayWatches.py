@@ -27,8 +27,7 @@ class Scraper(object):
         username = un
         password = pw
         self.db = dataBase(username, password)
-        ##item data containers
-        ##using csv temporarily, I'll move to push the data to the mySQL server later on
+        # we're using csv because it can help with normalizing data
         with open('results.csv', 'w') as csvfile:
             self.writer = csv.writer(csvfile)
             self.writer.writerow(["item_name", "brand", "price", "seller_score", "savings", "has_units_sold", "units_sold", "watching"])
@@ -36,8 +35,9 @@ class Scraper(object):
 
     def scrape(self):
         #arbitrary number
-        n_items = 2800                                    ##we want x entries
-        while(self.itemsShowing < n_items):               ##while less than n_entries
+        #feel free to alter n_items to increase/decrease the number of pages to be indexed
+        n_items = 2800
+        while(self.itemsShowing < n_items):
             url = self.baseURL + str(self.pageIndex) + "&_skc=" + str(self.itemsShowing)  ##increment itemsshowing by x
             req = requests.get(url)
             soup = BeautifulSoup(req.content, "lxml")
@@ -65,7 +65,9 @@ class Scraper(object):
         print "done"
 
     def itemData(self):
-        time.sleep(1.5)
+        time.sleep(1.5) #sleep is used to avoid getting timed out by the server (a necessary evil)
+        # these set of steps are used to extract and normalize the data, seperating out unicode and other characters that
+        # may affect read/write of the data (effectively santizing strings)
         try:
             ItemRequest = requests.get(self.InnerURL)
             soup = BeautifulSoup(ItemRequest.content, "lxml")

@@ -1,6 +1,10 @@
 import MySQLdb
 import csv
 class dataBase(object):
+
+    """
+    make sure you have the results.csv in the same directory as this program
+    """
     def __init__(self, username="root", password="lollmao1@"):
         self.db_username = username
         self.db_password = password
@@ -32,7 +36,7 @@ class dataBase(object):
                     pass
         except:
             pass
-        print "done"
+        print "finished inserts"
 
 if __name__ == "__main__":
     db = dataBase()
