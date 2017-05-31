@@ -6,10 +6,13 @@
 ### go to the wiki page for full documentation [here](https://github.com/DzouOnionGardener/CUBED-DE-INTERN-CHALLENGE/wiki)
 
 ___
-# step 1: install the necessary modules from requirements.py
-# step 2: create a database schema called eBay
-# step 3: run __init__.py
-# step 4: run flaskSite.py
+
+### steps: 
+
+* step 1: install the necessary modules from requirements.py
+* step 2: create a database schema called eBay
+* step 3: run `__init__.py`
+* step 4: run `flaskSite.py`
 
 ## result should be:
 
