@@ -6,3 +6,4 @@ mysql-utilities==1.6.1
 mysql-connector-python==2.0.4
 PyMySQL==0.7.11
 pandas==0.20.1
+Flask==0.12.2
