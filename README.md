@@ -3,12 +3,13 @@
 ## install the required python modules/packages from requirements.txt
 `pip install -r requirements.txt`
 
-### go to the wiki page for full documentation
+### go to the wiki page for full documentation [here](https://github.com/DzouOnionGardener/CUBED-DE-INTERN-CHALLENGE/wiki)
 
 ___
-
-# step1: run __init__.py
-# step 2: run flaskSite.py
+# step 1: install the necessary modules from requirements.py
+# step 2: create a database schema called eBay
+# step 3: run __init__.py
+# step 4: run flaskSite.py
 
 ## result should be:
 
